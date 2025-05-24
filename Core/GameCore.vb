@@ -25,17 +25,9 @@ Public Class GameCore
     End Sub
 
     Public Sub Draw()
-
-        ' DRAW WORLD
-        'WorldMap.Draw()
-
         Globals.SpriteBatch.Begin(transformMatrix:=Globals.Camera)
 
         _startScreen.Draw()
-
-        ' DRAW ENTITIES
-        '_toon.Draw()
-        'Globals.SpriteBatch.Draw(Textures.Character, New Rectangle(0, 0, 64, 64), Color.White)
 
         Globals.SpriteBatch.End()
     End Sub

@@ -7,13 +7,15 @@ Imports SharpDX.Direct2D1.Effects
 Imports SharpDX.MediaFoundation
 
 Public Class StartScreen
-
+    ' Screen Area
     Public Area As Rectangle
 
+    ' Dialog Variables
     Private DialogArea As Rectangle
     Private DialogSrcArea As Rectangle
     Private DialogList As New List(Of String)
     Private Dialog As String
+
     Private AdvDialogIconSrc As Rectangle
     Private AdvDialogIconDest As Rectangle
     Private AdvDialogIconAni As Integer = 0
@@ -22,7 +24,7 @@ Public Class StartScreen
     Private FontUp As Button
     Private FontDown As Button
 
-    ' Test variables
+    ' Test Variables
     Private FontScale As Decimal = 0.4
     Private strMixedCase As String = "Once upon a time in a land far away, " &
                               "there was a quick brown fox that jumped over a lazy dog. " &
@@ -37,7 +39,7 @@ Public Class StartScreen
     Public Sub New()
         Area = New Rectangle(0, 0, Globals.Screen.Width - 50, Globals.Screen.Height - 50)
 
-        ' Draw Dialog Box
+        ' DRAW DIALOG BOX
         DialogArea = New Rectangle(Globals.Screen.Width * 0.2, Globals.Screen.Height * 0.66, Globals.Screen.Width * 0.6, 200)
         DialogSrcArea = New Rectangle(0, 0, 64, 48)
 
@@ -55,7 +57,7 @@ Public Class StartScreen
         FontDown.Area.X += DialogArea.Width - FontDown.Area.Width - FontUp.Area.Width - 5
         FontDown.Area.Y -= FontDown.Area.Height + 5
 
-        ' Initial Dialog
+        ' INITIALIZE DIALOG
         AdvanceDialog()
     End Sub
     Public Sub Update()
@@ -69,14 +71,14 @@ Public Class StartScreen
         If FontUp.Clicked Then ScaleFont(0.05)
         If FontDown.Clicked Then ScaleFont(-0.05)
 
-
+        ' Control Updates
         FontUp.Update()
         FontDown.Update()
 
     End Sub
 
     Public Sub ScaleFont(value As Decimal)
-        ' Abort if out of bounds or font in unreasonably small
+        ' Abort if out of bounds or font is unreasonably small
         If FontScale <= 0.35 AndAlso value <= 0 Then Exit Sub
         If Fonts.MonoType.MeasureString(Dialog).Y * (FontScale + value) > DialogArea.Height Then Exit Sub
 
@@ -132,6 +134,7 @@ Public Class StartScreen
         Dialog = sb.ToString().TrimEnd(vbCrLf)
     End Sub
 
+    ' Flash Continuing Dialog Indicator
     Private Sub FlashAdvDialogIcon()
         If AdvDialogIconAlpha <= 0.3 Then AdvDialogIconAni = 1
         If AdvDialogIconAlpha >= 1 Then AdvDialogIconAni = 0
@@ -147,6 +150,7 @@ Public Class StartScreen
         Globals.SpriteBatch.Draw(Textures.Menu, DialogArea, DialogSrcArea, Color.White)
         'Globals.SpriteBatch.Draw(Textures.PlayerBoard, New Rectangle(0, 0, Globals.Screen.Width, Globals.Screen.Height), Color.LightBlue)
 
+        ' FONT TEST - 75%
         Globals.SpriteBatch.DrawString(Fonts.MonoType,
                                 "0.75" & vbCrLf &
                                 "~ DISCOVERY IS THE BOON OF THE INTREPID ~" & vbCrLf & 'ABCDEFGHIJKLMNOPQRSTUVWXYZ
@@ -157,6 +161,7 @@ Public Class StartScreen
                                 Color.White,
                                 0, Vector2.Zero, 0.75, Nothing, 0)
 
+        ' FONT TEST - 65%
         Globals.SpriteBatch.DrawString(Fonts.MonoType,
                                 "0.65" & vbCrLf &
                                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ" & vbCrLf & "abcdefghijklmnopqrstuvwxyz",
@@ -178,6 +183,7 @@ Public Class StartScreen
             Globals.SpriteBatch.Draw(Textures.AdvDialogIcon, AdvDialogIconDest, AdvDialogIconSrc, Color.White * AdvDialogIconAlpha)
         End If
 
+        ' DRAW CONTROLS
         FontUp.Draw()
         FontDown.Draw()
 
