@@ -28,13 +28,13 @@ Public Class Dialog
 
     Public Sub New(Text As String, Position As Vector2, Size As Vector2, FontSize As Single, TextColor As Color,
                    Optional BG As Texture2D = Nothing,
-                   Optional BGColor As ColorWriteChannels = Nothing,
+                   Optional BGColor As Color = Nothing,
                    Optional BGAlpha As Single = 1,
                    Optional Pixelize As Boolean = False)
 
         ' Initialize primary dialog features
         Area = New Rectangle(Position.X, Position.Y, Size.X, Size.Y)
-        If BGColor = Nothing Then DialogColor = New Color(60, 60, 60) 'Color.DarkGray
+        If BGColor = Nothing Then DialogColor = New Color(60, 60, 60) Else DialogColor = BGColor  'Color.DarkGray
         If BG Is Nothing Then DialogBackground = Textures.DialogBackground Else DialogBackground = BG
         PixelizeBackground = Pixelize
         DialogAlpha = BGAlpha
@@ -161,6 +161,11 @@ Public Class Dialog
         ' Draw dialog surface
         Globals.SpriteBatch.Draw(DialogBackground, Area, DialogColor * DialogAlpha)
 
+        If PixelizeBackground = True Then
+            Globals.SpriteBatch.End()
+            Globals.SpriteBatch.Begin()
+        End If
+
         ' Draw dialog text
         Globals.SpriteBatch.DrawString(Fonts.MonoType,
                                 DialogText,
@@ -173,9 +178,5 @@ Public Class Dialog
             Globals.SpriteBatch.Draw(Textures.AdvDialogIcon, _AdvDialogIconDest, _AdvDialogIconSrc, Color.White * _AdvDialogIconAlpha)
         End If
 
-        If PixelizeBackground = True Then
-            Globals.SpriteBatch.End()
-            Globals.SpriteBatch.Begin()
-        End If
     End Sub
 End Class
