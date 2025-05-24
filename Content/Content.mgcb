@@ -63,6 +63,18 @@
 /processorParam:TextureFormat=Color
 /build:GFX/AdvDialogiIcon.png
 
+#begin GFX/DialogBackground.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:GFX/DialogBackground.png
+
 #begin GFX/menu1.png
 /importer:TextureImporter
 /processor:TextureProcessor
