@@ -8,6 +8,7 @@ Public Class Dialog
     Private _preserveText As String
 
     ' Base dialog structure
+    Public DialogMode As DialogStyle
     Public Area As Rectangle
     Public DialogColor As Color
     Public DialogBackground As Texture2D
@@ -28,18 +29,33 @@ Public Class Dialog
 
     ' Borders
     Public HasBorder As Boolean = True
-    Public BorderWidth As Integer = 1
+    Public BorderWidth As Integer = 2
     Public BorderColor As Color = Color.Wheat
-    Private Pixel As Texture2D
-    Private Borders As New List(Of Rectangle)
+    Private _Pixel As Texture2D
+    Private _Borders As New List(Of Rectangle)
 
-    Public Sub New(Text As String, Position As Vector2, Size As Vector2, FontSize As Single, TextColor As Color,
+    ' Typed Dialog
+    Public TypeSpeed As Integer ' Timer Speed (milliseconds)
+    Private _TypeTime As Integer ' Elapsed Time
+    Private _TypeDialogText As New StringBuilder
+    Private _TypePos As Integer
+
+    Public Sub New(Text As String,
+                   Position As Vector2,
+                   Size As Vector2,
+                   FontSize As Single,
+                   TextColor As Color,
                    Optional BG As Texture2D = Nothing,
                    Optional BGColor As Color = Nothing,
                    Optional BGAlpha As Single = 1,
                    Optional Pixelize As Boolean = False)
 
         ' Initialize primary dialog features
+
+        ' Default Style
+        DialogMode = DialogStyle.Typed ' Default to Typed mode
+        TypeSpeed = 50
+
         Area = New Rectangle(Position.X, Position.Y, Size.X, Size.Y)
         If BGColor = Nothing Then DialogColor = New Color(60, 60, 60) Else DialogColor = BGColor  'Color.DarkGray
         If BG Is Nothing Then DialogBackground = Textures.DialogBackground Else DialogBackground = BG
@@ -62,18 +78,18 @@ Public Class Dialog
         DialogLines = WrapText(Text, Area.Width - 10, FontScale)
         AdvanceDialog()
 
-        ' TEST BORDER
+        ' Add Borders
         CreateBorders()
     End Sub
 
     Private Sub CreateBorders()
-        Pixel = New Texture2D(Globals.SpriteBatch.GraphicsDevice, 1, 1)
-        Pixel.SetData(New Color() {Color.White})
+        _Pixel = New Texture2D(Globals.SpriteBatch.GraphicsDevice, 1, 1)
+        _Pixel.SetData(New Color() {Color.White})
 
-        Borders.Add(New Rectangle(Area.X + BorderWidth, Area.Y, Area.Width, BorderWidth)) ' Top
-        Borders.Add(New Rectangle(Area.X, Area.Y + BorderWidth, BorderWidth, Area.Height)) ' Left
-        Borders.Add(New Rectangle(Area.X + Area.Width, Area.Y, BorderWidth, Area.Height)) ' Right
-        Borders.Add(New Rectangle(Area.X, Area.Y + Area.Height, Area.Width, BorderWidth)) ' Bottom
+        _Borders.Add(New Rectangle(Area.X + BorderWidth, Area.Y, Area.Width, BorderWidth)) ' Top
+        _Borders.Add(New Rectangle(Area.X, Area.Y + BorderWidth, BorderWidth, Area.Height)) ' Left
+        _Borders.Add(New Rectangle(Area.X + Area.Width, Area.Y, BorderWidth, Area.Height)) ' Right
+        _Borders.Add(New Rectangle(Area.X, Area.Y + Area.Height, Area.Width, BorderWidth)) ' Bottom
     End Sub
 
     ' Detect Horizontal Word Capacity
@@ -138,6 +154,12 @@ Public Class Dialog
     Public Sub AdvanceDialog()
         If DialogLines.Count = 0 Then Exit Sub
 
+        ' Reset Typed Dialog
+        If DialogMode = DialogStyle.Typed Then
+            _TypeDialogText.Clear()
+            _TypePos = 0
+        End If
+
         Dim linesToProcess As Integer = Math.Min(CalculateMaxDisplaylines, DialogLines.Count)
         Dim sb As New StringBuilder
 
@@ -150,6 +172,23 @@ Public Class Dialog
         DialogText = sb.ToString().TrimEnd(vbCrLf)
     End Sub
 
+    Public Sub AdvanceTypedDialog()
+        ' No Change - Return Full Text
+        If _TypePos + 1 >= DialogText.Length Then Exit Sub
+
+        ' Add Character To Output and Advance
+        _TypeDialogText.Append(DialogText(_TypePos))
+        _TypePos += 1
+    End Sub
+
+    Public Function GetModeText() As String
+        Select Case DialogMode
+            Case DialogStyle.Typed : Return _TypeDialogText.ToString
+            Case DialogStyle.Immediate : Return DialogText
+            Case Else : Return Nothing
+        End Select
+    End Function
+
     ' Flash Continuing Dialog Indicator
     Private Sub FlashAdvDialogIcon()
         If _AdvDialogIconAlpha <= 0.3 Then _AdvDialogIconAni = 1
@@ -160,6 +199,8 @@ Public Class Dialog
     End Sub
 
     Public Sub Update()
+
+
         ' Check User Inputs
         If Input.KeyPressed(Keys.Up) Then ScaleFont(0.05)
         If Input.KeyPressed(Keys.Down) Then ScaleFont(-0.05)
@@ -169,6 +210,12 @@ Public Class Dialog
 
         ' Flash Dialog Advance Icon
         If DialogLines.Count >= 1 Then FlashAdvDialogIcon()
+
+        ' If Typed Dialog Style - Update Timer
+        If DialogMode = DialogStyle.Typed Then _TypeTime += Globals.GameTimer
+
+        ' Reset Elapsed Timer
+        If _TypeTime >= TypeSpeed Then _TypeTime = 0 : AdvanceTypedDialog()
     End Sub
 
     Public Sub Draw()
@@ -182,7 +229,7 @@ Public Class Dialog
         Globals.SpriteBatch.Draw(DialogBackground, Area, DialogColor * DialogAlpha)
 
         ' TEST BORDER DRAW
-        If HasBorder = True Then Borders.ForEach(Sub(b) Globals.SpriteBatch.Draw(Pixel, b, BorderColor * DialogAlpha))
+        If HasBorder = True Then _Borders.ForEach(Sub(b) Globals.SpriteBatch.Draw(_Pixel, b, BorderColor * DialogAlpha))
 
         If PixelizeBackground = True Then
             Globals.SpriteBatch.End()
@@ -191,10 +238,10 @@ Public Class Dialog
 
         ' Draw dialog text
         Globals.SpriteBatch.DrawString(Fonts.MonoType,
-                                DialogText,
-                                DialogTextPosition,
-                                DialogTextColor,
-                                0, Vector2.Zero, FontScale, Nothing, 0)
+                                       GetModeText(),
+                                       DialogTextPosition,
+                                       DialogTextColor,
+                                       0, Vector2.Zero, FontScale, Nothing, 0)
 
         ' DRAW ADVANCE DIALOG ICON
         If DialogLines.Count >= 1 Then
@@ -202,4 +249,9 @@ Public Class Dialog
         End If
 
     End Sub
+
+    Public Enum DialogStyle
+        Immediate
+        Typed
+    End Enum
 End Class

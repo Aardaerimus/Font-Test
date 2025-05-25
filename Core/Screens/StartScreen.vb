@@ -12,11 +12,12 @@ Public Class StartScreen
     ' Add Dialog
     Private MyDialog As Dialog
 
+    'Private TestTimer As Integer
+
     Public Sub New()
         Area = New Rectangle(0, 0, Globals.Screen.Width - 50, Globals.Screen.Height - 50)
 
         ' Add a dialog box
-
         MyDialog = New Dialog("HELLO WORLD! " &
                        "I must say that this improved dialog box is exceeding my expectations. " &
                        "The font could, perhaps, use some improvements, but " &
@@ -27,6 +28,8 @@ Public Class StartScreen
                        0.65, ' Font Scale
                        Color.White) ' Font Color
 
+        MyDialog.DialogMode = Dialog.DialogStyle.Typed
+        MyDialog.TypeSpeed = 50
 
         ' ADD BUTTONS
         ' TODO: Create button collections
@@ -40,6 +43,8 @@ Public Class StartScreen
 
     End Sub
     Public Sub Update()
+        'TestTimer += Globals.GameTimer
+
         ' Update Control Events
         If FontUp.Clicked Then MyDialog.ScaleFont(0.05)
         If FontDown.Clicked Then MyDialog.ScaleFont(-0.05)
@@ -50,6 +55,8 @@ Public Class StartScreen
 
         ' Test dialog
         MyDialog.Update()
+
+        'If TestTimer >= 5000 Then TestTimer = 0 : MsgBox("DOOT!")
     End Sub
 
     Public Sub Draw()
