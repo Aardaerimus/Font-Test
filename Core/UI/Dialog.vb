@@ -26,6 +26,13 @@ Public Class Dialog
 
     Public FontScale As Decimal
 
+    ' Borders
+    Public HasBorder As Boolean = True
+    Public BorderWidth As Integer = 1
+    Public BorderColor As Color = Color.Wheat
+    Private Pixel As Texture2D
+    Private Borders As New List(Of Rectangle)
+
     Public Sub New(Text As String, Position As Vector2, Size As Vector2, FontSize As Single, TextColor As Color,
                    Optional BG As Texture2D = Nothing,
                    Optional BGColor As Color = Nothing,
@@ -54,6 +61,19 @@ Public Class Dialog
         ' Advance Initial Text
         DialogLines = WrapText(Text, Area.Width - 10, FontScale)
         AdvanceDialog()
+
+        ' TEST BORDER
+        CreateBorders()
+    End Sub
+
+    Private Sub CreateBorders()
+        Pixel = New Texture2D(Globals.SpriteBatch.GraphicsDevice, 1, 1)
+        Pixel.SetData(New Color() {Color.White})
+
+        Borders.Add(New Rectangle(Area.X + BorderWidth, Area.Y, Area.Width, BorderWidth)) ' Top
+        Borders.Add(New Rectangle(Area.X, Area.Y + BorderWidth, BorderWidth, Area.Height)) ' Left
+        Borders.Add(New Rectangle(Area.X + Area.Width, Area.Y, BorderWidth, Area.Height)) ' Right
+        Borders.Add(New Rectangle(Area.X, Area.Y + Area.Height, Area.Width, BorderWidth)) ' Bottom
     End Sub
 
     ' Detect Horizontal Word Capacity
@@ -160,6 +180,9 @@ Public Class Dialog
 
         ' Draw dialog surface
         Globals.SpriteBatch.Draw(DialogBackground, Area, DialogColor * DialogAlpha)
+
+        ' TEST BORDER DRAW
+        If HasBorder = True Then Borders.ForEach(Sub(b) Globals.SpriteBatch.Draw(Pixel, b, BorderColor * DialogAlpha))
 
         If PixelizeBackground = True Then
             Globals.SpriteBatch.End()

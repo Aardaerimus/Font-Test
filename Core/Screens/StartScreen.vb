@@ -23,7 +23,7 @@ Public Class StartScreen
                        "overall, I'd say that this is working rather nicely." &
                        "THIS IS ALL CAPS. 1234567890 <- Numbers ",
                        New Vector2(25, 100), ' Position
-                       New Vector2(650, 400), ' Size
+                       New Vector2(650, 200), ' Size
                        0.65, ' Font Scale
                        Color.White) ' Font Color
 
